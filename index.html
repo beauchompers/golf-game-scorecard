@@ -154,13 +154,15 @@
         }
 
         .score-table-wrapper {
-            overflow-x: auto;
+            overflow: auto;
             margin-bottom: 20px;
+            max-height: 60vh;
         }
 
         .score-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             min-width: 600px;
         }
 
@@ -172,12 +174,18 @@
         }
 
         .score-table th {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.85);
             font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 2;
         }
 
         .score-table th.player-header {
             min-width: 100px;
+            position: sticky;
+            left: 0;
+            z-index: 3;
         }
 
         .score-table th.hole-header {
@@ -185,24 +193,33 @@
         }
 
         .score-table th.total-header {
-            background: rgba(244,208,63,0.3);
+            background: rgba(244,208,63,0.9);
+            position: sticky;
+            right: 0;
+            z-index: 3;
         }
 
         .score-table td.player-name {
             font-weight: bold;
             text-align: left;
             padding-left: 12px;
-            background: rgba(0,0,0,0.1);
+            background: rgba(30,60,20,0.95);
+            position: sticky;
+            left: 0;
+            z-index: 1;
         }
 
         .score-table td.total-cell {
             font-weight: bold;
             font-size: 1.2rem;
-            background: rgba(244,208,63,0.2);
+            background: rgba(244,208,63,0.9);
+            position: sticky;
+            right: 0;
+            z-index: 1;
         }
 
         .score-table td.winner {
-            background: rgba(46,204,113,0.4);
+            background: rgba(46,204,113,0.95);
         }
 
         .score-input {
