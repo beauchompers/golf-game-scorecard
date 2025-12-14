@@ -577,15 +577,32 @@
             quickScore.querySelectorAll('button[data-value]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (activeInput) {
-                        activeInput.value = btn.dataset.value;
-                        activeInput.dispatchEvent(new Event('change'));
+                        const currentInput = activeInput;
+                        const playerIndex = parseInt(currentInput.dataset.player);
+                        const holeIndex = parseInt(currentInput.dataset.hole);
+
+                        currentInput.value = btn.dataset.value;
+                        currentInput.dispatchEvent(new Event('change'));
+
+                        // Close panel (this sets activeInput to null)
                         closeQuickScore();
 
-                        // Move to next input
-                        const inputs = Array.from(document.querySelectorAll('.score-input'));
-                        const currentIndex = inputs.indexOf(activeInput);
-                        if (currentIndex < inputs.length - 1) {
-                            inputs[currentIndex + 1].focus();
+                        // Move to next player in same hole, or first player in next hole
+                        let nextPlayer = playerIndex + 1;
+                        let nextHole = holeIndex;
+
+                        if (nextPlayer >= gameState.numPlayers) {
+                            nextPlayer = 0;
+                            nextHole = holeIndex + 1;
+                        }
+
+                        if (nextHole < 9) {
+                            const nextInput = scoreTable.querySelector(
+                                `input[data-player="${nextPlayer}"][data-hole="${nextHole}"]`
+                            );
+                            if (nextInput) {
+                                nextInput.focus();
+                            }
                         }
                     }
                 });
@@ -728,9 +745,40 @@
                 gameState.scores[playerIndex][holeIndex] = parseInt(value) || 0;
             }
 
+            // Update input styling
+            const score = gameState.scores[playerIndex][holeIndex];
+            e.target.classList.remove('negative', 'high');
+            if (score !== null) {
+                if (score < 0) e.target.classList.add('negative');
+                else if (score > 10) e.target.classList.add('high');
+            }
+
             saveGameState();
-            renderScoreTable();
+            updateTotals();
             updateCurrentRound();
+        }
+
+        // Update just the totals without re-rendering
+        function updateTotals() {
+            const totals = gameState.players.map((_, playerIndex) => {
+                return gameState.scores[playerIndex].reduce((sum, score) => {
+                    return sum + (score !== null ? score : 0);
+                }, 0);
+            });
+
+            const minTotal = Math.min(...totals);
+            const hasAnyScores = gameState.scores.some(playerScores =>
+                playerScores.some(s => s !== null)
+            );
+
+            const totalCells = scoreTable.querySelectorAll('.total-cell');
+            totalCells.forEach((cell, playerIndex) => {
+                cell.textContent = totals[playerIndex];
+                cell.classList.remove('winner');
+                if (hasAnyScores && totals[playerIndex] === minTotal) {
+                    cell.classList.add('winner');
+                }
+            });
         }
 
         // Handle score focus - show quick score panel on mobile
